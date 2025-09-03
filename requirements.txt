@@ -1,0 +1,15 @@
+# Dependencias para el proyecto de Métodos Numéricos
+# Este archivo contiene las librerías externas requeridas para ejecutar los algoritmos
+
+# NumPy - Biblioteca fundamental para computación científica con Python
+# Proporciona arrays multidimensionales y funciones matemáticas
+numpy>=1.21.0
+
+# Matplotlib - Biblioteca para crear visualizaciones y gráficos
+# Utilizada para graficar funciones y visualizar convergencia de métodos
+matplotlib>=3.5.0
+
+# Nota: Las siguientes librerías son parte de la biblioteca estándar de Python
+# y no requieren instalación:
+# - math: Funciones matemáticas básicas
+# - typing: Soporte para type hints

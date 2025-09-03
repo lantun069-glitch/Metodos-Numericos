@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/lucas/Desktop/Metodos Numeros en computadoras/venv/bin/python3" "$0" "$@"
+'''exec' "/home/lucas/Desktop/Metodos Numeros en computadoras/Metodos-Numericos/venv/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
