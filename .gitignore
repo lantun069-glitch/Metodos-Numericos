@@ -1,0 +1,120 @@
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+
+# Test results
+test-results/
+results/
+
+# Datos temporales y gráficos generados
+datos_temp*.txt
+grafico_*.png
+resultados_*.txt
+
+# Archivos de datos locales
+datos.txt
+*.dat
+
+# Resultados de exámenes (opcional - descomenta si no quieres subirlos)
+# examenes/*/resultados_*.txt
+# examenes/*/solucion_*.py
+
+# Archivos de configuración local
+.vscode/settings.json
+.idea/workspace.xml
+
+# Archivos de backup
+*.bak
+*.backup
+*~.nib
+
+# Archivos de sistema específicos
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+[Tt]humbs.db

@@ -1,15 +1,48 @@
-# Dependencias para el proyecto de Métodos Numéricos
-# Este archivo contiene las librerías externas requeridas para ejecutar los algoritmos
+# Métodos Numéricos - Dependencias del Proyecto
+# ==============================================
 
-# NumPy - Biblioteca fundamental para computación científica con Python
-# Proporciona arrays multidimensionales y funciones matemáticas
-numpy>=1.21.0
+# DEPENDENCIAS CORE (Requeridas)
+# ------------------------------
+# Este proyecto usa SOLO la biblioteca estándar de Python
+# No se requieren dependencias externas para la funcionalidad principal
 
-# Matplotlib - Biblioteca para crear visualizaciones y gráficos
-# Utilizada para graficar funciones y visualizar convergencia de métodos
+# DEPENDENCIAS OPCIONALES (Para características adicionales)
+# ----------------------------------------------------------
+
+# Matplotlib - Para graficación y visualización (opcional)
+# Usado en algunos ejercicios que incluyen gráficos
 matplotlib>=3.5.0
 
-# Nota: Las siguientes librerías son parte de la biblioteca estándar de Python
-# y no requieren instalación:
-# - math: Funciones matemáticas básicas
-# - typing: Soporte para type hints
+# NumPy - Para operaciones matemáticas avanzadas (opcional)
+# Usado en ejercicios específicos de análisis numérico
+numpy>=1.21.0
+
+# DEPENDENCIAS DE DESARROLLO (Solo para desarrollo)
+# ------------------------------------------------
+
+# Testing framework
+pytest>=7.0.0
+
+# Formateo de código
+black>=22.0.0
+
+# Linting y análisis de código
+flake8>=4.0.0
+
+# INSTALACIÓN
+# -----------
+# Instalación básica (sin dependencias opcionales):
+#   pip install -e .
+#
+# Instalación completa (con graficación):
+#   pip install -e .[graficas]
+#
+# Solo desarrollo:
+#   pip install -r requirements.txt
+
+# NOTAS
+# -----
+# - La biblioteca funciona completamente sin dependencias externas
+# - Matplotlib solo es necesario para ejercicios con gráficos
+# - NumPy solo se usa en ejercicios específicos
+# - Todas las funciones core están implementadas desde cero
