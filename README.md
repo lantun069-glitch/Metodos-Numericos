@@ -65,33 +65,6 @@ examenes/                    # Ejercicios de examenes
 └── examen_final/            # Ejercicios del examen final
 ```
 
-## 🧪 Ejemplos de Uso
-
-### Ejecutar Ejercicios de Examenes
-```bash
-# Ejemplo: Parcial 1, Ejercicio 1
-cd examenes/parcial1
-python ejercicio_01.py
-
-# Ejemplo: Parcial 2, Ejercicio 2
-cd examenes/parcial2
-python ejercicio_02.py
-```
-
-### Importar en Codigo Propio
-```python
-# Ejemplo completo de uso
-from metodos_numericos.localizacion_raices import newton_raphson
-
-# Definir funcion y su derivada
-f = lambda x: x**3 - 2*x - 5
-df = lambda x: 3*x**2 - 2
-
-# Encontrar raiz con Newton-Raphson
-raiz, f_raiz, error = newton_raphson(f, df, x0=2, tolerancia=1e-8)
-print(f"Raiz encontrada: {raiz:.8f}")
-```
-
 ## 🔍 Metodos Disponibles
 
 ### Localizacion de Raices
@@ -124,31 +97,10 @@ print(f"Raiz encontrada: {raiz:.8f}")
 - `matplotlib`: Para graficos y visualizacion
 - `numpy`: Para operaciones matematicas avanzadas
 
-## 🚀 Caracteristicas Tecnicas
-
-- ✅ **Sin dependencias**: Funciona con Python puro
-- ✅ **Modular**: Cada metodo es independiente
-- ✅ **Codigo limpio**: Sin acentos, prints minimos, formato simple
-- ✅ **Probado**: Ejercicios validados y funcionales
-- ✅ **Educativo**: Ideal para aprendizaje de metodos numericos
-- ✅ **Estilo estudiante**: Codigo directo y sin decoraciones
-
 ## � Estado del Proyecto
 
 **Version**: 1.0.0 (Limpieza Completa)  
 **Ultima Actualizacion**: Septiembre 2025
-
-### ✅ Cambios Recientes:
-- Eliminacion completa de acentos y enes
-- Simplificacion de prints y mensajes de salida
-- Correccion de caracteres especiales (\\n visibles)
-- Formato de codigo estilo estudiante de ingenieria
-- Verificacion de funcionamiento de todos los ejercicios
-
-### 📁 Archivos Principales:
-- `examenes/parcial1/` - Ejercicios verificados y funcionales
-- `examenes/parcial2/` - Ejercicios verificados y funcionales  
-- `metodos_numericos/` - Modulos principales limpios y funcionales
 
 ## �📄 Licencia
 
