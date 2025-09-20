@@ -103,19 +103,66 @@ def cuadrados_minimos(x_vals, y_vals, grado):
     
     return coeficientes, polinomio
 
-def spline_cubica(x_vals, y_vals, x):
-    """Spline cubica simple (interpolacion lineal por segmentos)"""
-    n = len(x_vals)
-    
-    # Encontrar el intervalo apropiado
+def spline_cubica(xv, yv, x):
+    """
+    Spline cubica natural 1D.
+    xv: nodos en orden creciente (len n >= 2)
+    yv: valores en cada nodo
+    x : punto a evaluar
+    return: S(x)
+    """
+    n = len(xv)
+    if n != len(yv) or n < 2:
+        raise ValueError("xv y yv deben tener misma longitud y n>=2")
+    # verificar que xv sea estrictamente creciente
     for i in range(n-1):
-        if x_vals[i] <= x <= x_vals[i+1]:
-            # Interpolacion lineal
-            t = (x - x_vals[i]) / (x_vals[i+1] - x_vals[i])
-            return y_vals[i] * (1 - t) + y_vals[i+1] * t
-    
-    # Si x esta fuera del rango, usar extrapolacion lineal
-    if x < x_vals[0]:
-        return y_vals[0]
+        if xv[i] >= xv[i+1]:
+            raise ValueError("xv debe ser estrictamente creciente")
+
+    # paso 1: armar sistema tridiagonal para segundas derivadas M
+    h = [xv[i+1] - xv[i] for i in range(n-1)]
+
+    # diagonales de la matriz (condicion natural: extremos fijos)
+    a = [0.0] + h[:-1]                              # subdiagonal
+    b = [1.0] + [2.0*(h[i-1]+h[i]) for i in range(1, n-1)] + [1.0]  # diagonal
+    c = h[1:] + [0.0]                               # superdiagonal
+
+    # lado derecho del sistema (extremos en 0 por condicion natural)
+    d = [0.0]*n
+    for i in range(1, n-1):
+        d[i] = 6.0 * ((yv[i+1]-yv[i]) / h[i] - (yv[i]-yv[i-1]) / h[i-1])
+
+    # paso 2: resolver A*M = d con algoritmo de Thomas
+    # eliminacion hacia adelante
+    for i in range(1, n):
+        w = a[i] / b[i-1]
+        b[i] -= w * c[i-1]
+        d[i] -= w * d[i-1]
+    # sustitucion hacia atras
+    M = [0.0]*n
+    M[-1] = d[-1] / b[-1]
+    for i in range(n-2, -1, -1):
+        M[i] = (d[i] - c[i]*M[i+1]) / b[i]
+
+    # paso 3: localizar el intervalo [x_i, x_{i+1}]
+    if x <= xv[0]:
+        i = 0                  # extrapolacion simple con primer tramo
+    elif x >= xv[-1]:
+        i = n-2                # ultimo tramo
     else:
-        return y_vals[-1]
+        i = 0
+        while not (xv[i] <= x <= xv[i+1]):
+            i += 1
+
+    # paso 4: evaluar la spline en el intervalo
+    xi, xi1 = xv[i], xv[i+1]
+    hi = xi1 - xi
+    yi, yi1 = yv[i], yv[i+1]
+    Mi, Mi1 = M[i], M[i+1]
+
+    A = (xi1 - x) / hi
+    B = (x - xi) / hi
+    S = (A*yi + B*yi1
+         + ((A**3 - A) * (hi**2) * Mi) / 6.0
+         + ((B**3 - B) * (hi**2) * Mi1) / 6.0)
+    return S
