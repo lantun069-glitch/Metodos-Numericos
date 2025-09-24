@@ -7,13 +7,14 @@ Este paquete contiene implementaciones de diversos metodos numericos para:
 - Sistemas de ecuaciones lineales
 - Interpolacion y regresion
 - Metodos iterativos
+- Analysis estadistico y correlacion
 
 Modulos disponibles:
 - funciones: Definicion de funciones matematicas comunes
 - localizacion_raices: Metodos para encontrar raices de ecuaciones
 - sistemas_lineales: Metodos para resolver sistemas de ecuaciones
 - interpolacion: Metodos de interpolacion y regresion
-- utilidades: Funciones auxiliares y de graficacion
+- utilidades: Funciones auxiliares, graficacion y analisis estadistico
 """
 
 # Imports para facilitar el uso
@@ -32,7 +33,7 @@ from .interpolacion import (
 )
 from .utilidades import (
     graficar_funcion, analizar_convergencia, comparar_metodos,
-    formatear_matriz, formatear_vector
+    formatear_matriz, formatear_vector, coef_correlacion
 )
 
 __version__ = "1.0.0"

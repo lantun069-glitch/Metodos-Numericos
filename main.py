@@ -34,7 +34,7 @@ from metodos_numericos import (
     lagrange, sistema_ecuaciones, spline_cubica, cuadrados_minimos,
     
     # Utilidades
-    graficar_funcion, analizar_convergencia, comparar_metodos
+    graficar_funcion, analizar_convergencia, comparar_metodos, coef_correlacion
 )
 
 
@@ -229,6 +229,97 @@ def demo_interpolacion():
         print(f"Error en cuadrados mínimos: {e}")
 
 
+def demo_analisis_estadistico():
+    """Demostracion de analisis estadistico y correlacion"""
+    print("\\n" + "=" * 60)
+    print("DEMOSTRACION: ANALISIS ESTADISTICO")
+    print("=" * 60)
+    
+    # Casos de prueba para correlacion
+    print("Analizando diferentes tipos de correlacion:")
+    print()
+    
+    # Caso 1: Correlacion positiva perfecta
+    print("CASO 1: CORRELACION POSITIVA PERFECTA")
+    print("="*45)
+    x1 = [1, 2, 3, 4, 5]
+    y1 = [2, 4, 6, 8, 10]
+    try:
+        r1 = coef_correlacion(x1, y1)
+        print(f"x = {x1}")
+        print(f"y = {y1}")
+        print(f"Coeficiente de correlacion: {r1:.6f}")
+        print("Interpretacion: Correlacion positiva perfecta (r = 1)")
+    except Exception as e:
+        print(f"Error: {e}")
+    
+    # Caso 2: Correlacion negativa perfecta
+    print()
+    print("CASO 2: CORRELACION NEGATIVA PERFECTA")
+    print("="*45)
+    x2 = [1, 2, 3, 4, 5]
+    y2 = [10, 8, 6, 4, 2]
+    try:
+        r2 = coef_correlacion(x2, y2)
+        print(f"x = {x2}")
+        print(f"y = {y2}")
+        print(f"Coeficiente de correlacion: {r2:.6f}")
+        print("Interpretacion: Correlacion negativa perfecta (r = -1)")
+    except Exception as e:
+        print(f"Error: {e}")
+    
+    # Caso 3: Sin correlacion
+    print()
+    print("CASO 3: SIN CORRELACION LINEAL")
+    print("="*35)
+    x3 = [1, 2, 3, 4, 5]
+    y3 = [3, 1, 4, 2, 5]
+    try:
+        r3 = coef_correlacion(x3, y3)
+        print(f"x = {x3}")
+        print(f"y = {y3}")
+        print(f"Coeficiente de correlacion: {r3:.6f}")
+        print("Interpretacion: Correlacion debil o ausente")
+    except Exception as e:
+        print(f"Error: {e}")
+    
+    # Caso 4: Datos reales (ejemplo temperatura vs consumo)
+    print()
+    print("CASO 4: EJEMPLO PRACTICO (Temperatura vs Consumo)")
+    print("="*50)
+    temperatura = [15, 18, 22, 25, 28, 32, 35]  # °C
+    consumo_energia = [45, 42, 38, 35, 30, 25, 20]  # kWh
+    try:
+        r4 = coef_correlacion(temperatura, consumo_energia)
+        print(f"Temperatura (°C): {temperatura}")
+        print(f"Consumo (kWh):    {consumo_energia}")
+        print(f"Coeficiente de correlacion: {r4:.6f}")
+        if r4 > 0.8:
+            interpretacion = "Correlacion positiva fuerte"
+        elif r4 > 0.5:
+            interpretacion = "Correlacion positiva moderada"
+        elif r4 > -0.5:
+            interpretacion = "Correlacion debil"
+        elif r4 > -0.8:
+            interpretacion = "Correlacion negativa moderada"
+        else:
+            interpretacion = "Correlacion negativa fuerte"
+        print(f"Interpretacion: {interpretacion}")
+    except Exception as e:
+        print(f"Error: {e}")
+    
+    print()
+    print("GUIA DE INTERPRETACION:")
+    print("=" * 25)
+    print("r =  1.0 : Correlacion positiva perfecta")
+    print("r >  0.8 : Correlacion positiva fuerte")
+    print("r >  0.5 : Correlacion positiva moderada")
+    print("r > -0.5 : Correlacion debil")
+    print("r > -0.8 : Correlacion negativa moderada")
+    print("r < -0.8 : Correlacion negativa fuerte")
+    print("r = -1.0 : Correlacion negativa perfecta")
+
+
 def menu_interactivo():
     """Menu interactivo para probar diferentes metodos"""
     while True:
@@ -238,10 +329,11 @@ def menu_interactivo():
         print("1. Demostracion de Localizacion de Raices")
         print("2. Demostracion de Sistemas Lineales")
         print("3. Demostracion de Interpolacion")
-        print("4. Ejecutar todas las demostraciones")
-        print("5. Salir")
+        print("4. Demostracion de Analisis Estadistico")
+        print("5. Ejecutar todas las demostraciones")
+        print("6. Salir")
         
-        opcion = input("\nSeleccione una opcion (1-5): ").strip()
+        opcion = input("\nSeleccione una opcion (1-6): ").strip()
         
         if opcion == '1':
             demo_localizacion_raices()
@@ -250,13 +342,16 @@ def menu_interactivo():
         elif opcion == '3':
             demo_interpolacion()
         elif opcion == '4':
+            demo_analisis_estadistico()
+        elif opcion == '5':
             demo_localizacion_raices()
             demo_sistemas_lineales()
             demo_interpolacion()
-        elif opcion == '5':
+            demo_analisis_estadistico()
+        elif opcion == '6':
             break
         else:
-            print("Opcion no valida. Por favor, seleccione 1-5.")
+            print("Opcion no valida. Por favor, seleccione 1-6.")
 
         input("\nPresione Enter para continuar...")
 
@@ -297,25 +392,29 @@ MODULOS DISPONIBLES:
    - spline_cubica(puntos_x, puntos_y, condicion_frontera)
    - cuadrados_minimos(puntos_x, puntos_y, grado)
 
-5. utilidades: Funciones auxiliares
+5. utilidades: Funciones auxiliares y analisis estadistico
    - graficar_funcion(f, intervalo, num_puntos)
    - analizar_convergencia(historial, metodo, tolerancia)
    - comparar_metodos(resultados_metodos, criterio)
+   - coef_correlacion(x, y): Coeficiente de correlacion de Pearson
 
-EJEMPLO DE USO:
---------------
+EJEMPLOS DE USO:
+---------------
 
+# Ejemplo 1: Localizacion de raices
 from metodos_numericos import biseccion, FuncionesBasicas
 
-# Usar funcion predefinida
 f = FuncionesBasicas.f2  # x^3 - 2x - 5
-
-# Encontrar raiz
-raiz, error, historial = biseccion(f, 2, 3, tolerancia=1e-6)
-
+raiz, valor, error = biseccion(f, 2, 3, tolerancia=1e-6)
 print(f"Raiz encontrada: {raiz}")
-print(f"Error final: {error}")
-print(f"Iteraciones: {len(historial)}")
+
+# Ejemplo 2: Analisis de correlacion
+from metodos_numericos import coef_correlacion
+
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 6, 8, 10]
+r = coef_correlacion(x, y)
+print(f"Correlacion: {r:.4f}")
 
 Para mas informacion, consulte la documentacion de cada funcion.
 """)
@@ -330,6 +429,7 @@ if __name__ == "__main__":
             demo_localizacion_raices()
             demo_sistemas_lineales()
             demo_interpolacion()
+            demo_analisis_estadistico()
         else:
             print(f"Argumento no reconocido: {sys.argv[1]}")
             print("Uso: python main.py [demo|help]")
