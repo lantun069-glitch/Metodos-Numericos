@@ -229,12 +229,4 @@ ejemplo_diferencias_finitas.py # Ejemplo de uso de diferenciación
 - `matplotlib`: Para graficos y visualizacion
 - `numpy`: Para operaciones matematicas avanzadas y diferencias finitas
 
-## � Estado del Proyecto
-
-**Version**: 1.0.0 (Limpieza Completa)  
-**Ultima Actualizacion**: Septiembre 2025
-
-## �📄 Licencia
-
-Este proyecto esta bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
 
