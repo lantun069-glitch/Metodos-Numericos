@@ -16,6 +16,8 @@ Funciones disponibles:
 - metodo_heun: Método predictor-corrector de segundo orden
 - metodo_punto_medio: Método de segundo orden usando punto medio
 - metodo_rk4: Método de Runge-Kutta de 4to orden (alta precisión)
+- calcular_error_convergencia: Analiza convergencia comparando con solución exacta
+- calcular_factor_convergencia_Q: Calcula factor Q para verificar orden empírico
 """
 
 import numpy as np
@@ -357,3 +359,200 @@ def calcular_error_convergencia(f: Callable[[float, float], float],
         errores['rk4'].append(abs(y_rk4[-1] - valor_exacto))
     
     return errores
+
+
+def calcular_factor_convergencia_Q(metodo: Callable,
+                                   f: Callable[[float, float], float],
+                                   x0: float,
+                                   xf: float,
+                                   y0: float,
+                                   h_inicial: float = 0.1,
+                                   graficar: bool = True,
+                                   nombre_metodo: str = None) -> Tuple[np.ndarray, np.ndarray, float]:
+    """
+    Calcula el factor de convergencia Q para verificar el orden de un metodo numerico
+    
+    El factor Q se calcula usando tres mallas con pasos h, h/2 y h/4, siguiendo
+    la formula:
+        Q = log(|y1 - y2| / |y2 - y3|) / log(2)
+    
+    donde y1, y2, y3 son las aproximaciones con pasos h, h/2, h/4 respectivamente.
+    
+    Parametros:
+    -----------
+    metodo : Callable
+        Funcion del metodo numerico a evaluar (euler, heun, rk4, etc.)
+    f : Callable[[float, float], float]
+        Funcion que define la EDO y' = f(x, y)
+    x0 : float
+        Valor inicial de x
+    xf : float
+        Valor final de x
+    y0 : float
+        Condicion inicial y(x0) = y0
+    h_inicial : float, default=0.1
+        Tamanio de paso inicial (se usara h, h/2, h/4)
+    graficar : bool, default=True
+        Si True, genera un grafico del factor Q vs x
+    nombre_metodo : str, optional
+        Nombre del metodo para el titulo del grafico
+        
+    Retorna:
+    --------
+    Tuple[np.ndarray, np.ndarray, float]
+        - x_comun: puntos x donde se calculo Q
+        - Q_valores: valores del factor Q en cada punto
+        - Q_promedio: promedio de Q (estimacion del orden)
+        
+    Ejemplo:
+    --------
+    >>> def f(x, y):
+    ...     return -2 * x * y
+    >>> x_q, Q, Q_prom = calcular_factor_convergencia_Q(metodo_euler, f, 0, 1, 1)
+    >>> print(f"Orden empirico: {Q_prom:.2f}")  # Deberia ser cercano a 1
+    """
+    
+    # Definir los tres tamanios de paso segun la teoria
+    h1 = h_inicial
+    h2 = h1 / 2.0
+    h3 = h1 / 4.0
+    
+    print(f"\n{'='*50}")
+    print(f"CALCULO DEL FACTOR DE CONVERGENCIA Q")
+    print(f"{'='*50}")
+    print(f"Metodo: {nombre_metodo if nombre_metodo else 'Sin especificar'}")
+    print(f"Intervalo: [{x0}, {xf}]")
+    print(f"Condicion inicial: y({x0}) = {y0}")
+    print(f"Pasos utilizados: h={h1:.4f}, h/2={h2:.4f}, h/4={h3:.4f}")
+    
+    # Resolver la EDO con los tres pasos diferentes
+    try:
+        x1, y1 = metodo(f, x0, xf, y0, h=h1)
+        x2, y2 = metodo(f, x0, xf, y0, h=h2)
+        x3, y3 = metodo(f, x0, xf, y0, h=h3)
+    except Exception as e:
+        print(f"Error al ejecutar el metodo: {e}")
+        return np.array([]), np.array([]), np.nan
+    
+    print(f"Puntos calculados: n1={len(y1)}, n2={len(y2)}, n3={len(y3)}")
+    
+    # Calcular Q en los puntos comunes de las tres mallas
+    Q_valores = []
+    x_comun = []
+    
+    # Iterar sobre los puntos de la malla mas gruesa (h1)
+    for i in range(len(x1)):
+        # Encontrar los indices correspondientes en las otras mallas
+        idx2 = i * 2
+        idx3 = i * 4
+        
+        # Verificar que los indices esten dentro del rango
+        if idx2 < len(y2) and idx3 < len(y3):
+            # Calcular las diferencias entre aproximaciones sucesivas
+            diff_12 = abs(y1[i] - y2[idx2])  # diferencia entre h y h/2
+            diff_23 = abs(y2[idx2] - y3[idx3])  # diferencia entre h/2 y h/4
+            
+            # Evitar division por cero y valores muy pequenos
+            if diff_23 > 1e-14 and diff_12 > 1e-14:
+                # Aplicar la formula del factor Q
+                q = np.log(diff_12 / diff_23) / np.log(2.0)
+                
+                # Filtrar valores anomalos
+                if 0 < q < 10:
+                    Q_valores.append(q)
+                    x_comun.append(x1[i])
+    
+    # Convertir a arrays numpy
+    x_comun = np.array(x_comun)
+    Q_valores = np.array(Q_valores)
+    
+    # Calcular estadisticas de Q
+    if len(Q_valores) > 0:
+        Q_promedio = np.median(Q_valores)  # mediana mas robusta que promedio
+        Q_mean = np.mean(Q_valores)
+        Q_std = np.std(Q_valores)
+        
+        print(f"\n{'='*50}")
+        print(f"RESULTADOS:")
+        print(f"{'='*50}")
+        print(f"Q promedio (media):  {Q_mean:.3f}")
+        print(f"Q promedio (mediana): {Q_promedio:.3f}")
+        print(f"Desviacion estandar:  {Q_std:.3f}")
+        print(f"Rango Q: [{np.min(Q_valores):.3f}, {np.max(Q_valores):.3f}]")
+        
+        # Interpretacion del orden
+        ordenes_teoricos = {1: 'Euler', 2: 'Heun/Punto Medio', 4: 'RK4'}
+        orden_cercano = min(ordenes_teoricos.keys(), 
+                          key=lambda x: abs(x - Q_promedio))
+        print(f"\nInterpretacion: Orden empirico ≈ {Q_promedio:.2f}")
+        print(f"Metodo mas cercano: {ordenes_teoricos[orden_cercano]} (orden {orden_cercano})")
+    else:
+        Q_promedio = np.nan
+        print("\nAdvertencia: No se pudo calcular Q (posible error numerico)")
+    
+    # Graficar si se solicita
+    if graficar and len(Q_valores) > 0:
+        import matplotlib.pyplot as plt
+        
+        # Crear figura con mejor diseno
+        fig, ax = plt.subplots(figsize=(12, 7))
+        
+        # Graficar Q vs x con estilo mejorado
+        ax.plot(x_comun, Q_valores, 'b.-', label=f'Q(x)', 
+                linewidth=2, markersize=8, markerfacecolor='white', 
+                markeredgewidth=2, markeredgecolor='blue')
+        
+        # Linea horizontal con el promedio
+        ax.axhline(y=Q_promedio, color='red', linestyle='--', 
+                   label=f'Q mediana = {Q_promedio:.3f}', alpha=0.8, linewidth=2)
+        
+        # Agregar lineas de referencia para ordenes teoricos
+        colores_ref = {'1': 'orange', '2': 'green', '4': 'purple'}
+        for orden, color in zip([1, 2, 4], ['orange', 'green', 'purple']):
+            ax.axhline(y=orden, color=color, linestyle=':', alpha=0.6, linewidth=1.5)
+            ax.text(x_comun[-1] + 0.01*(x_comun[-1]-x_comun[0]), orden, 
+                   f'  Orden {orden}', va='center', fontsize=10, color=color)
+        
+        # Configuracion del grafico
+        ax.set_xlabel('x', fontsize=13)
+        ax.set_ylabel('Factor de Convergencia Q', fontsize=13)
+        titulo = f'Factor de Convergencia Q'
+        if nombre_metodo:
+            titulo += f' - Metodo: {nombre_metodo}'
+        ax.set_title(titulo, fontsize=15, fontweight='bold')
+        
+        # Mejorar la leyenda
+        ax.legend(loc='upper right', framealpha=0.95, shadow=True, fontsize=11)
+        
+        # Grid y limites
+        ax.grid(True, alpha=0.3, linestyle='--')
+        ax.set_ylim([0, min(6, max(Q_valores) + 1)])
+        ax.set_xlim([x_comun[0] - 0.02*(x_comun[-1]-x_comun[0]), 
+                     x_comun[-1] + 0.02*(x_comun[-1]-x_comun[0])])
+        
+        # Agregar caja de informacion
+        info_text = (f'h inicial: {h_inicial:.3f}\n'
+                    f'Puntos analizados: {len(Q_valores)}\n'
+                    f'Q promedio: {Q_promedio:.3f}')
+        props = dict(boxstyle='round,pad=0.5', facecolor='lightgray', 
+                    alpha=0.8, edgecolor='black')
+        ax.text(0.02, 0.98, info_text, transform=ax.transAxes,
+                fontsize=10, verticalalignment='top',
+                bbox=props)
+        
+        # Sombrear region de confianza (promedio +/- std)
+        if len(Q_valores) > 1:
+            Q_std = np.std(Q_valores)
+            ax.fill_between(x_comun, Q_promedio - Q_std, Q_promedio + Q_std, 
+                           alpha=0.2, color='red', label=f'±σ')
+        
+        plt.tight_layout()
+        plt.show()
+        
+        print(f"\n✓ Grafico generado exitosamente")
+    elif graficar:
+        print("\n✗ No se pudo generar el grafico (datos insuficientes)")
+    
+    print(f"{'='*50}\n")
+    
+    return x_comun, Q_valores, Q_promedio

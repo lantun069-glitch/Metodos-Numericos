@@ -120,6 +120,20 @@ for i, h in enumerate(pasos):
     print(f"  Error Euler={errores['euler'][i]:.8f}")
     print(f"  Error Heun={errores['heun'][i]:.8f}")
     print(f"  Error RK4={errores['rk4'][i]:.8f}")
+
+# Análisis del factor de convergencia Q (verificación empírica del orden)
+from metodos_numericos.ecuaciones_diferenciales import calcular_factor_convergencia_Q
+
+# Verificar orden empírico del método RK4
+x_q, Q_vals, Q_prom = calcular_factor_convergencia_Q(
+    metodo=metodo_rk4,
+    f=f,
+    x0=0, xf=1, y0=1,
+    h_inicial=0.1,
+    graficar=True,
+    nombre_metodo="Runge-Kutta 4"
+)
+print(f"Orden empírico RK4: {Q_prom:.2f} (teórico: 4)")
 ```
 
 ### Diferenciacion Numerica

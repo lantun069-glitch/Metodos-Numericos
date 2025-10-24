@@ -49,7 +49,7 @@ from .diferencias_finitas import (
 )
 from .ecuaciones_diferenciales import (
     metodo_euler, metodo_heun, metodo_punto_medio, metodo_rk4,
-    calcular_error_convergencia
+    calcular_error_convergencia, calcular_factor_convergencia_Q
 )
 from .utilidades import (
     graficar_funcion, analizar_convergencia, comparar_metodos,
