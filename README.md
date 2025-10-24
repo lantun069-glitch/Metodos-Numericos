@@ -87,7 +87,7 @@ print(f"Gauss-Legendre (4 pts): {resultado_gauss}")
 ```python
 # Importar métodos para EDOs
 from metodos_numericos.ecuaciones_diferenciales import (
-    metodo_euler, metodo_heun, metodo_punto_medio,
+    metodo_euler, metodo_heun, metodo_punto_medio, metodo_rk4,
     calcular_error_convergencia
 )
 import numpy as np
@@ -104,17 +104,22 @@ def solucion_exacta(x):
 x_euler, y_euler = metodo_euler(f, 0, 1, 1, h=0.2)
 x_heun, y_heun = metodo_heun(f, 0, 1, 1, h=0.2)
 x_pm, y_pm = metodo_punto_medio(f, 0, 1, 1, h=0.2)
+x_rk4, y_rk4 = metodo_rk4(f, 0, 1, 1, h=0.2)
 
 print(f"Euler: y(1) ≈ {y_euler[-1]:.6f}")
 print(f"Heun: y(1) ≈ {y_heun[-1]:.6f}")
 print(f"Punto Medio: y(1) ≈ {y_pm[-1]:.6f}")
+print(f"Runge-Kutta 4: y(1) ≈ {y_rk4[-1]:.6f}")
 print(f"Exacto: y(1) = {solucion_exacta(1):.6f}")
 
-# Análisis de convergencia
+# Análisis de convergencia comparando todos los métodos
 pasos = [0.5, 0.25, 0.125, 0.0625]
 errores = calcular_error_convergencia(f, 0, 1, 1, solucion_exacta, pasos)
 for i, h in enumerate(pasos):
-    print(f"h={h}: Error Euler={errores['euler'][i]:.6f}")
+    print(f"h={h}:")
+    print(f"  Error Euler={errores['euler'][i]:.8f}")
+    print(f"  Error Heun={errores['heun'][i]:.8f}")
+    print(f"  Error RK4={errores['rk4'][i]:.8f}")
 ```
 
 ### Diferenciacion Numerica

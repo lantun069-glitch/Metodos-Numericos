@@ -9,11 +9,13 @@ Métodos implementados:
 - Método de Euler (orden 1)
 - Método de Heun (Euler mejorado, orden 2)
 - Método del Punto Medio (orden 2)
+- Método de Runge-Kutta de 4to orden (RK4, orden 4)
 
 Funciones disponibles:
 - metodo_euler: Método básico de primer orden
 - metodo_heun: Método predictor-corrector de segundo orden
 - metodo_punto_medio: Método de segundo orden usando punto medio
+- metodo_rk4: Método de Runge-Kutta de 4to orden (alta precisión)
 """
 
 import numpy as np
@@ -218,6 +220,93 @@ def metodo_punto_medio(f: Callable[[float, float], float],
     return x, y
 
 
+def metodo_rk4(f: Callable[[float, float], float],
+               x0: float,
+               xf: float,
+               y0: float,
+               h: float = None,
+               n: int = None) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Resuelve una EDO usando el metodo de Runge-Kutta de 4to orden (RK4 clasico)
+    
+    El metodo RK4 es el mas utilizado en la practica por su excelente precision
+    y estabilidad. Utiliza 4 evaluaciones de la funcion por paso para lograr
+    un error de orden O(h^5).
+    
+    Parametros:
+    -----------
+    f : Callable[[float, float], float]
+        Funcion f(x, y) que define la EDO y' = f(x, y)
+    x0 : float
+        Valor inicial de x
+    xf : float
+        Valor final de x
+    y0 : float
+        Condicion inicial y(x0) = y0
+    h : float, opcional
+        Tamanio del paso. Si no se proporciona, usar n
+    n : int, opcional
+        Numero de subintervalos. Si no se proporciona, usar h
+    
+    Retorna:
+    --------
+    Tuple[np.ndarray, np.ndarray]
+        Arrays con los valores de x e y calculados
+        
+    Raises:
+    -------
+    ValueError
+        Si no se proporciona ni h ni n
+    
+    Ejemplo:
+    --------
+    >>> def f(x, y):
+    ...     return -2 * x * y  # y' = -2xy
+    >>> x, y = metodo_rk4(f, 0, 1, 1, h=0.1)
+    >>> print(f"y(1) = {y[-1]:.6f}")
+    >>> # Solucion exacta: exp(-x^2) = exp(-1) = 0.367879
+    """
+    
+    # Determinar h o n segun lo que se proporcione
+    if h is None and n is None:
+        raise ValueError("Debe proporcionar h o n")
+    elif h is None:
+        h = (xf - x0) / n
+    else:
+        n = int((xf - x0) / h)
+    
+    # Inicializar arrays para almacenar resultados
+    x = np.zeros(n + 1)
+    y = np.zeros(n + 1)
+    
+    # Condiciones iniciales
+    x[0] = x0
+    y[0] = y0
+    
+    # Aplicar el metodo RK4 clasico
+    # Basado en el pseudocodigo del PDF de la profesora
+    for i in range(n):
+        # Calcular las 4 pendientes (k1, k2, k3, k4)
+        # k1: pendiente al inicio del intervalo
+        k1 = f(x[i], y[i])
+        
+        # k2: pendiente en el punto medio usando k1
+        k2 = f(x[i] + h/2, y[i] + k1 * h/2)
+        
+        # k3: pendiente en el punto medio usando k2
+        k3 = f(x[i] + h/2, y[i] + k2 * h/2)
+        
+        # k4: pendiente al final del intervalo usando k3
+        k4 = f(x[i] + h, y[i] + k3 * h)
+        
+        # Promedio ponderado de las pendientes
+        # Los pesos son 1/6, 2/6, 2/6, 1/6
+        y[i+1] = y[i] + h * (k1 + 2*k2 + 2*k3 + k4) / 6
+        x[i+1] = x[i] + h
+    
+    return x, y
+
+
 def calcular_error_convergencia(f: Callable[[float, float], float],
                                 x0: float,
                                 xf: float,
@@ -248,7 +337,8 @@ def calcular_error_convergencia(f: Callable[[float, float], float],
         'pasos': pasos,
         'euler': [],
         'heun': [],
-        'punto_medio': []
+        'punto_medio': [],
+        'rk4': []
     }
     
     valor_exacto = solucion_exacta(xf)
@@ -258,10 +348,12 @@ def calcular_error_convergencia(f: Callable[[float, float], float],
         _, y_euler = metodo_euler(f, x0, xf, y0, h=h)
         _, y_heun = metodo_heun(f, x0, xf, y0, h=h)
         _, y_pm = metodo_punto_medio(f, x0, xf, y0, h=h)
+        _, y_rk4 = metodo_rk4(f, x0, xf, y0, h=h)
         
         # Calcular error absoluto en el punto final
         errores['euler'].append(abs(y_euler[-1] - valor_exacto))
         errores['heun'].append(abs(y_heun[-1] - valor_exacto))
         errores['punto_medio'].append(abs(y_pm[-1] - valor_exacto))
+        errores['rk4'].append(abs(y_rk4[-1] - valor_exacto))
     
     return errores
