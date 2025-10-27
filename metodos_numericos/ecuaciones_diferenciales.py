@@ -3,19 +3,21 @@ Métodos Numéricos para Ecuaciones Diferenciales Ordinarias (EDOs)
 ================================================================
 
 Este módulo contiene implementaciones de métodos numéricos para resolver EDOs de primer orden
-de la forma y' = f(x, y) con condición inicial y(x0) = y0.
+de la forma y' = f(x, y) con condición inicial y(x0) = y0, así como sistemas de EDOs.
 
 Métodos implementados:
 - Método de Euler (orden 1)
 - Método de Heun (Euler mejorado, orden 2)
 - Método del Punto Medio (orden 2)
 - Método de Runge-Kutta de 4to orden (RK4, orden 4)
+- Método de Euler para sistemas de EDOs
 
 Funciones disponibles:
 - metodo_euler: Método básico de primer orden
 - metodo_heun: Método predictor-corrector de segundo orden
 - metodo_punto_medio: Método de segundo orden usando punto medio
 - metodo_rk4: Método de Runge-Kutta de 4to orden (alta precisión)
+- euler_sistema: Método de Euler para sistemas de 2 EDOs
 - calcular_error_convergencia: Analiza convergencia comparando con solución exacta
 - calcular_factor_convergencia_Q: Calcula factor Q para verificar orden empírico
 """
@@ -307,6 +309,61 @@ def metodo_rk4(f: Callable[[float, float], float],
         x[i+1] = x[i] + h
     
     return x, y
+
+
+def euler_sistema(f1, f2, x0, xf, y10, y20, n):
+    """
+    Resuelve un sistema de 2 EDO usando el metodo de Euler
+    
+    Parameters:
+    -----------
+    f1 : callable
+        Primera ecuacion diferencial dy1/dx = f1(x, y1, y2)
+    f2 : callable  
+        Segunda ecuacion diferencial dy2/dx = f2(x, y1, y2)
+    x0 : float
+        Valor inicial de x
+    xf : float
+        Valor final de x
+    y10 : float
+        Condicion inicial para y1
+    y20 : float
+        Condicion inicial para y2
+    n : int
+        Numero de subintervalos
+        
+    Returns:
+    --------
+    x : np.array
+        Arreglo de valores de x
+    y1 : np.array
+        Solucion aproximada de y1
+    y2 : np.array
+        Solucion aproximada de y2
+    """
+    # Calcular el paso de integracion
+    h = (xf - x0) / n
+    
+    # Inicializar arrays para almacenar soluciones
+    x = np.zeros(n + 1)
+    y1 = np.zeros(n + 1)
+    y2 = np.zeros(n + 1)
+    
+    # Condiciones iniciales
+    x[0] = x0
+    y1[0] = y10
+    y2[0] = y20
+    
+    # Aplicar metodo de Euler iterativamente
+    for i in range(n):
+        # Actualizar x
+        x[i + 1] = x[i] + h
+        
+        # Aplicar formula de Euler para cada ecuacion
+        y1[i + 1] = y1[i] + h * f1(x[i], y1[i], y2[i])
+        y2[i + 1] = y2[i] + h * f2(x[i], y1[i], y2[i])
+    
+    return x, y1, y2
 
 
 def calcular_error_convergencia(f: Callable[[float, float], float],

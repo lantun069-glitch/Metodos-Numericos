@@ -48,7 +48,7 @@ from .diferencias_finitas import (
     DiferenciasFinitas, PrecisionLevel
 )
 from .ecuaciones_diferenciales import (
-    metodo_euler, metodo_heun, metodo_punto_medio, metodo_rk4,
+    metodo_euler, metodo_heun, metodo_punto_medio, metodo_rk4, euler_sistema,
     calcular_error_convergencia, calcular_factor_convergencia_Q
 )
 from .utilidades import (

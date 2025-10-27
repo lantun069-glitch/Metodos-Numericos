@@ -136,6 +136,28 @@ x_q, Q_vals, Q_prom = calcular_factor_convergencia_Q(
 print(f"Orden empírico RK4: {Q_prom:.2f} (teórico: 4)")
 ```
 
+### Sistemas de Ecuaciones Diferenciales
+```python
+# Importar método para sistemas de EDOs
+from metodos_numericos.ecuaciones_diferenciales import euler_sistema
+import numpy as np
+
+# Definir sistema de EDOs: dy1/dx = y2, dy2/dx = -y1
+# Condiciones iniciales: y1(0) = 1, y2(0) = 0
+# Solución exacta: y1(x) = cos(x), y2(x) = -sin(x)
+def f1(x, y1, y2):
+    return y2
+
+def f2(x, y1, y2):
+    return -y1
+
+# Resolver el sistema
+x, y1, y2 = euler_sistema(f1, f2, x0=0, xf=2*np.pi, y10=1, y20=0, n=100)
+
+print(f"y1({2*np.pi:.2f}) ≈ {y1[-1]:.6f} (exacto: {np.cos(2*np.pi):.6f})")
+print(f"y2({2*np.pi:.2f}) ≈ {y2[-1]:.6f} (exacto: {-np.sin(2*np.pi):.6f})")
+```
+
 ### Diferenciacion Numerica
 ```python
 # Importar clase de diferencias finitas
