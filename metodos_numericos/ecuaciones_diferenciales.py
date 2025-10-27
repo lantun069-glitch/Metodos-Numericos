@@ -11,6 +11,7 @@ Métodos implementados:
 - Método del Punto Medio (orden 2)
 - Método de Runge-Kutta de 4to orden (RK4, orden 4)
 - Método de Euler para sistemas de EDOs
+- Método de Runge-Kutta de 4to orden para sistemas de EDOs
 
 Funciones disponibles:
 - metodo_euler: Método básico de primer orden
@@ -18,6 +19,7 @@ Funciones disponibles:
 - metodo_punto_medio: Método de segundo orden usando punto medio
 - metodo_rk4: Método de Runge-Kutta de 4to orden (alta precisión)
 - euler_sistema: Método de Euler para sistemas de 2 EDOs
+- runge_kutta_4_sistema: Método de RK4 para sistemas de 2 EDOs (alta precisión)
 - calcular_error_convergencia: Analiza convergencia comparando con solución exacta
 - calcular_factor_convergencia_Q: Calcula factor Q para verificar orden empírico
 """
@@ -362,6 +364,82 @@ def euler_sistema(f1, f2, x0, xf, y10, y20, n):
         # Aplicar formula de Euler para cada ecuacion
         y1[i + 1] = y1[i] + h * f1(x[i], y1[i], y2[i])
         y2[i + 1] = y2[i] + h * f2(x[i], y1[i], y2[i])
+    
+    return x, y1, y2
+
+
+def runge_kutta_4_sistema(f1, f2, x0, xf, y10, y20, n):
+    """
+    Resuelve un sistema de 2 EDO usando Runge-Kutta de orden 4
+    
+    Parameters:
+    -----------
+    f1 : callable
+        Primera ecuacion dy1/dx = f1(x, y1, y2)
+    f2 : callable
+        Segunda ecuacion dy2/dx = f2(x, y1, y2)
+    x0 : float
+        Valor inicial de x
+    xf : float
+        Valor final de x
+    y10 : float
+        Condicion inicial y1(x0)
+    y20 : float
+        Condicion inicial y2(x0)
+    n : int
+        Numero de subintervalos
+        
+    Returns:
+    --------
+    x : np.array
+        Vector de puntos x
+    y1 : np.array
+        Solucion aproximada de y1
+    y2 : np.array
+        Solucion aproximada de y2
+    """
+    # Paso de integracion
+    h = (xf - x0) / n
+    
+    # Inicializar arrays
+    x = np.zeros(n + 1)
+    y1 = np.zeros(n + 1)
+    y2 = np.zeros(n + 1)
+    
+    # Condiciones iniciales
+    x[0] = x0
+    y1[0] = y10
+    y2[0] = y20
+    
+    # Bucle principal de RK4
+    for i in range(n):
+        # Valores actuales
+        xi = x[i]
+        y1i = y1[i]
+        y2i = y2[i]
+        
+        # Calcular k1
+        k11 = f1(xi, y1i, y2i)
+        k12 = f2(xi, y1i, y2i)
+        
+        # Calcular k2 usando punto medio
+        k21 = f1(xi + h/2, y1i + k11*h/2, y2i + k12*h/2)
+        k22 = f2(xi + h/2, y1i + k11*h/2, y2i + k12*h/2)
+        
+        # Calcular k3 usando nuevo punto medio
+        k31 = f1(xi + h/2, y1i + k21*h/2, y2i + k22*h/2)
+        k32 = f2(xi + h/2, y1i + k21*h/2, y2i + k22*h/2)
+        
+        # Calcular k4 en el punto final
+        k41 = f1(xi + h, y1i + k31*h, y2i + k32*h)
+        k42 = f2(xi + h, y1i + k31*h, y2i + k32*h)
+        
+        # Actualizar x
+        x[i + 1] = xi + h
+        
+        # Formula de RK4 para obtener siguiente valor
+        y1[i + 1] = y1i + (h/6) * (k11 + 2*k21 + 2*k31 + k41)
+        y2[i + 1] = y2i + (h/6) * (k12 + 2*k22 + 2*k32 + k42)
     
     return x, y1, y2
 
