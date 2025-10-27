@@ -12,6 +12,7 @@ Métodos implementados:
 - Método de Runge-Kutta de 4to orden (RK4, orden 4)
 - Método de Euler para sistemas de EDOs
 - Método de Runge-Kutta de 4to orden para sistemas de EDOs
+- Resolución de EDOs de orden superior (mediante reducción a sistemas)
 
 Funciones disponibles:
 - metodo_euler: Método básico de primer orden
@@ -20,6 +21,9 @@ Funciones disponibles:
 - metodo_rk4: Método de Runge-Kutta de 4to orden (alta precisión)
 - euler_sistema: Método de Euler para sistemas de 2 EDOs
 - runge_kutta_4_sistema: Método de RK4 para sistemas de 2 EDOs (alta precisión)
+- resolver_edo_orden_superior_euler: Resuelve EDOs de orden superior usando Euler
+- resolver_edo_orden_superior_rk4: Resuelve EDOs de orden superior usando RK4
+- guardar_resultados: Guarda soluciones numéricas en archivos de texto
 - calcular_error_convergencia: Analiza convergencia comparando con solución exacta
 - calcular_factor_convergencia_Q: Calcula factor Q para verificar orden empírico
 """
@@ -442,6 +446,158 @@ def runge_kutta_4_sistema(f1, f2, x0, xf, y10, y20, n):
         y2[i + 1] = y2i + (h/6) * (k12 + 2*k22 + 2*k32 + k42)
     
     return x, y1, y2
+
+
+def resolver_edo_orden_superior_euler(funciones, x0, xf, condiciones_iniciales, n):
+    """
+    Resuelve una EDO de orden superior reducida a sistema de primer orden usando Euler
+    
+    Parameters:
+    -----------
+    funciones : list of callables
+        Lista de funciones [f1, f2, ..., fm] para el sistema reducido
+    x0 : float
+        Valor inicial de x
+    xf : float
+        Valor final de x
+    condiciones_iniciales : list
+        Lista de condiciones iniciales [y(x0), y'(x0), ..., y^(m-1)(x0)]
+    n : int
+        Numero de pasos
+        
+    Returns:
+    --------
+    x : np.array
+        Vector de puntos x
+    y : list of np.array
+        Lista con las soluciones [y, y', y'', ...]
+    """
+    # Numero de ecuaciones
+    m = len(funciones)
+    h = (xf - x0) / n
+    
+    # Inicializar arrays
+    x = np.zeros(n + 1)
+    y = [np.zeros(n + 1) for _ in range(m)]
+    
+    # Condiciones iniciales
+    x[0] = x0
+    for j in range(m):
+        y[j][0] = condiciones_iniciales[j]
+    
+    # Metodo de Euler para el sistema
+    for i in range(n):
+        x[i + 1] = x[i] + h
+        
+        # Valores actuales
+        valores_actuales = [y[j][i] for j in range(m)]
+        
+        # Actualizar cada componente
+        for j in range(m):
+            y[j][i + 1] = y[j][i] + h * funciones[j](x[i], *valores_actuales)
+    
+    return x, y
+
+
+def resolver_edo_orden_superior_rk4(funciones, x0, xf, condiciones_iniciales, n):
+    """
+    Resuelve una EDO de orden superior reducida a sistema usando RK4
+    
+    Parameters:
+    -----------
+    funciones : list of callables
+        Lista de funciones del sistema reducido
+    x0 : float
+        Valor inicial de x
+    xf : float
+        Valor final de x
+    condiciones_iniciales : list
+        Condiciones iniciales [y(x0), y'(x0), ..., y^(m-1)(x0)]
+    n : int
+        Numero de pasos
+        
+    Returns:
+    --------
+    x : np.array
+        Vector de puntos x
+    y : list of np.array
+        Lista con las soluciones [y, y', y'', ...]
+    """
+    # Numero de ecuaciones en el sistema
+    m = len(funciones)
+    h = (xf - x0) / n
+    
+    # Inicializar arrays
+    x = np.zeros(n + 1)
+    y = [np.zeros(n + 1) for _ in range(m)]
+    
+    # Establecer condiciones iniciales
+    x[0] = x0
+    for j in range(m):
+        y[j][0] = condiciones_iniciales[j]
+    
+    # Aplicar RK4 al sistema
+    for i in range(n):
+        xi = x[i]
+        yi = [y[j][i] for j in range(m)]
+        
+        # Calcular k1
+        k1 = []
+        for func in funciones:
+            k1.append(func(xi, *yi))
+        
+        # Calcular k2
+        k2 = []
+        y_temp = [yi[j] + k1[j]*h/2 for j in range(m)]
+        for func in funciones:
+            k2.append(func(xi + h/2, *y_temp))
+        
+        # Calcular k3
+        k3 = []
+        y_temp = [yi[j] + k2[j]*h/2 for j in range(m)]
+        for func in funciones:
+            k3.append(func(xi + h/2, *y_temp))
+        
+        # Calcular k4
+        k4 = []
+        y_temp = [yi[j] + k3[j]*h for j in range(m)]
+        for func in funciones:
+            k4.append(func(xi + h, *y_temp))
+        
+        # Actualizar valores
+        x[i + 1] = xi + h
+        for j in range(m):
+            y[j][i + 1] = yi[j] + (h/6) * (k1[j] + 2*k2[j] + 2*k3[j] + k4[j])
+    
+    return x, y
+
+
+def guardar_resultados(x, y1, y2, nombre_base="resultado"):
+    """
+    Guarda los resultados en archivos de texto
+    
+    Parameters:
+    -----------
+    x : np.array
+        Vector de valores independientes
+    y1 : np.array
+        Primera solucion
+    y2 : np.array
+        Segunda solucion
+    nombre_base : str
+        Nombre base para los archivos
+    """
+    # Guardar primer archivo con x e y1
+    archivo1 = f"{nombre_base}_1.txt"
+    np.savetxt(archivo1, np.column_stack((x, y1)), 
+               delimiter='\t', header='x\ty1', comments='')
+    
+    # Guardar segundo archivo con x e y2  
+    archivo2 = f"{nombre_base}_2.txt"
+    np.savetxt(archivo2, np.column_stack((x, y2)), 
+               delimiter='\t', header='x\ty2', comments='')
+    
+    print(f"Resultados guardados en {archivo1} y {archivo2}")
 
 
 def calcular_error_convergencia(f: Callable[[float, float], float],
